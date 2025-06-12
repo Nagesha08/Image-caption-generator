@@ -1,0 +1,9 @@
+all_captions = []
+for key in descriptions:
+    all_captions.extend(descriptions[key])
+
+tokenizer = Tokenizer()
+tokenizer.fit_on_texts(all_captions)
+vocab_size = len(tokenizer.word_index) + 1
+
+max_length = max(len(caption.split()) for caption in all_captions)
