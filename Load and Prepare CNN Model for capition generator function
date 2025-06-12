@@ -1,0 +1,14 @@
+# Load the InceptionV3 model and remove the last layer
+def load_cnn_model():
+    model = InceptionV3(weights='imagenet')
+    model_new = Model(model.input, model.layers[-2].output)
+    return model_new
+
+# Preprocess the input image and extract features
+def extract_features(img_path, model_cnn):
+    img = Image.open(img_path).resize((299, 299))
+    x = image.img_to_array(img)
+    x = np.expand_dims(x, axis=0)
+    x = preprocess_input(x)
+    feature = model_cnn.predict(x)
+    return feature
