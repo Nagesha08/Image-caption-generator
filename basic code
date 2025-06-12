@@ -1,0 +1,52 @@
+# Install required packages
+!pip install tensorflow pillow numpy matplotlib
+
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.applications.inception_v3 import InceptionV3, preprocess_input
+from tensorflow.keras.preprocessing import image
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.models import Model, load_model
+from tensorflow.keras.layers import Input
+import matplotlib.pyplot as plt
+from PIL import Image
+import pickle
+
+# Load pre-trained CNN (InceptionV3) and remove the last layer
+model_cnn = InceptionV3(weights='imagenet')
+model_cnn_new = Model(model_cnn.input, model_cnn.layers[-2].output)
+
+def extract_features(img_path):
+    img = Image.open(img_path).resize((299, 299))
+    x = image.img_to_array(img)
+    x = np.expand_dims(x, axis=0)
+    x = preprocess_input(x)
+    feature = model_cnn_new.predict(x)
+    return feature
+
+# Example tokenizer and caption generation
+with open("tokenizer.pkl", "rb") as f:
+    tokenizer = pickle.load(f)
+
+max_length = 34  # Assume from training
+caption_model = load_model("caption_model.h5")
+
+def generate_caption(photo, tokenizer, model, max_length=34):
+    in_text = 'startseq'
+    for i in range(max_length):
+        sequence = tokenizer.texts_to_sequences([in_text])[0]
+        sequence = pad_sequences([sequence], maxlen=max_length)
+        yhat = model.predict([photo, sequence], verbose=0)
+        yhat = np.argmax(yhat)
+        word = tokenizer.index_word.get(yhat)
+        if word is None:
+            break
+        in_text += ' ' + word
+        if word == 'endseq':
+            break
+    return in_text.replace('startseq', '').replace('endseq', '').strip()
+
+# Run prediction
+photo = extract_features("example.jpg")
+caption = generate_caption(photo, tokenizer, caption_model)
+print("Generated Caption:", caption)
