@@ -1,0 +1,12 @@
+from sklearn.utils import shuffle
+
+# Load features and prepare training data
+features = np.load('features.npy', allow_pickle=True).item()
+X1train, X2train, ytrain = create_sequences(tokenizer, max_length, descriptions, features, vocab_size)
+
+# Shuffle the dataset
+X1train, X2train, ytrain = shuffle(X1train, X2train, ytrain)
+
+# Fit the model
+model.fit([X1train, X2train], ytrain, epochs=20, batch_size=64)
+model.save('caption_model.h5')
