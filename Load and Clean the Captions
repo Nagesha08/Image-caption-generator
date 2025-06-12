@@ -1,0 +1,21 @@
+# Load captions file
+def load_doc(filename):
+    with open(filename, 'r') as file:
+        text = file.read()
+    return text
+
+# Parse the captions
+def load_descriptions(doc):
+    mapping = {}
+    for line in doc.strip().split('\n'):
+        tokens = line.split('\t')
+        if len(tokens) != 2: continue
+        img_id, caption = tokens
+        img_id = img_id.split('.')[0]
+        caption = caption.lower().translate(str.maketrans('', '', string.punctuation))
+        mapping.setdefault(img_id, []).append('startseq ' + caption + ' endseq')
+    return mapping
+
+filename = 'Flickr8k_text/Flickr8k.token.txt'
+doc = load_doc(filename)
+descriptions = load_descriptions(doc)
