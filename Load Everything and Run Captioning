@@ -1,0 +1,14 @@
+# Load tokenizer and model
+tokenizer = pickle.load(open("tokenizer.pkl", "rb"))
+caption_model = load_model("caption_model.h5")
+cnn_model = load_cnn_model()
+
+# Set max caption length (same used during training)
+max_length = 34  # Change if different in your case
+
+# Predict caption for a new image
+image_path = "your_image.jpg"
+photo = extract_features(image_path, cnn_model)
+caption = generate_caption(photo, tokenizer, caption_model, max_length)
+
+print("Generated Caption:", caption)
